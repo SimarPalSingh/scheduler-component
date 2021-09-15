@@ -1,8 +1,8 @@
 const express = require("express");
-
+var mongodb = require('mongodb');
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
-// The router will be added as a middleware and will take control of requests starting with path /record.
+// The router will be added as a middleware and will take control of requests starting with path /update_schedule.
 const recordRoutes = express.Router();
 
 //This will help us connect to the database
@@ -10,7 +10,7 @@ const dbo = require("../db/conn");
 
 // This section will help you get a list of all the records.
 recordRoutes.route("/update_schedule").get(function (req, res) {
-  let db_connect = dbo.getDb("myFirstDatabase"); // idk why the Db name is employees. try myFirstDatabase - update all instances for "record" in this file
+  let db_connect = dbo.getDb("myFirstDatabase"); 
   db_connect
     .collection("scheduler")
     .find({})
@@ -28,18 +28,18 @@ recordRoutes.route("/update_schedule").get(function (req, res) {
 // This section will help you create a new record.
 recordRoutes.route("/update_schedule/add").post(function (req, res) {
   let db_connect = dbo.getDb("myFirstDatabase");
-  console.log(req);
+  // console.log(req);
   let myobj = {
     // Sample: person_level: req.body.person_level,
-    priority: req.body.priority,
-    status: req.body.status,
-    subject: req.body.subject,
+    priority: req.body.Priority,
+    status: req.body.Status,
+    subject: req.body.Subject,
     end_time: req.body.EndTime,
-    is_all_day: req.body.is_all_day,
+    is_all_day: req.body.IsAllDay,
     start_time: req.body.StartDate,
   };
   console.log(" - - -- - - - -");
-  console.log(myobj);
+  console.log(JSON.stringify(myobj));
   db_connect.collection("scheduler").insertOne(myobj, function (err, res) {
     if (err) throw err;
   });
@@ -47,7 +47,7 @@ recordRoutes.route("/update_schedule/add").post(function (req, res) {
 
 // This section will help you update a record by id.
 recordRoutes.route("/update/:id").post(function (req, res) {
-  let db_connect = dbo.getDb("employees");
+  let db_connect = dbo.getDb("myFirstDatabase");
   let myquery = { id: req.body.id };
   let newvalues = {
     $set: {
@@ -65,13 +65,28 @@ recordRoutes.route("/update/:id").post(function (req, res) {
 });
 
 // This section will help you delete a record
-recordRoutes.route("/:id").delete((req, res) => {
-  let db_connect = dbo.getDb("employees");
-  var myquery = { id: req.body.id };
-  db_connect.collection("records").deleteOne(myquery, function (err, obj) {
+// recordRoutes.route("/update_schedule/:id").delete((req, res) => {
+//   let db_connect = dbo.getDb("myFirstDatabase");
+//   var myquery = { id: req.body.id };
+//   db_connect.collection("scheduler").remove(
+//     {_id: new mongodb.ObjectID( req.body)},
+//     function (err, result){ 
+//       //check result to see how many document are deleted
+//       if (err) throw err;
+//     console.log("1 document deleted");
+//     console.log(result)
+//      });
+// });
+//  INITIAL CODE!!
+recordRoutes.route("/update_schedule/:id").delete((req, res) => {
+  let db_connect = dbo.getDb("myFirstDatabase");
+  // var myquery = { status: 'InActive' }; WORKS for non ID element !!!!
+  var myquery = { _id: new mongodb.ObjectId(req.body.id) };
+  db_connect.collection("scheduler").deleteOne(myquery, function (err, obj) {
+    console.log(obj)
+    console.log(myquery)
     if (err) throw err;
-    console.log("1 document deleted");
+    console.log(obj.deletedCount + " document deleted");
   });
 });
-
 module.exports = recordRoutes;
