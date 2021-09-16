@@ -17,6 +17,29 @@ recordRoutes.route("/update_schedule").get(function (req, res) {
     .toArray(function (err, result) {
       if (err) throw err;
       res.json(result);
+      // res.send to display
+    });
+});
+// first record
+recordRoutes.route("/update_schedule/firstOne").get(function (req, res) {
+  let db_connect = dbo.getDb("myFirstDatabase"); 
+  db_connect
+    .collection("scheduler")
+    .findOne({}, function(err, result) {
+      if (err) throw err;
+      console.log(result.priority);
+      // db.close();
+    });
+});
+// find Some records
+recordRoutes.route("/update_schedule/findSome").get(function (req, res) {
+  let db_connect = dbo.getDb("myFirstDatabase"); 
+  db_connect
+    .collection("scheduler")
+    .find({}, { projection: { _id: 0, end_time: 1 } }).toArray(function(err, result) {
+      if (err) throw err;
+      console.log(result);
+      // db.close();
     });
 });
 // the snippet from the sample app depicitng how this works with MonogoDB
@@ -83,8 +106,8 @@ recordRoutes.route("/update_schedule/:id").delete((req, res) => {
   // var myquery = { status: 'InActive' }; WORKS for non ID element !!!!
   var myquery = { _id: new mongodb.ObjectId(req.body.id) };
   db_connect.collection("scheduler").deleteOne(myquery, function (err, obj) {
-    console.log(obj)
-    console.log(myquery)
+    // console.log(obj)
+    // console.log(myquery)
     if (err) throw err;
     console.log(obj.deletedCount + " document deleted");
   });
